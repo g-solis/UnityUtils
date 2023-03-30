@@ -4,11 +4,11 @@ using UnityEngine;
 namespace Utils
 {
     /// <summary>
-    /// This Monobehavior should be used to run coroutines that shouldn't stop if the original monobehavior is disabled/destroyed
+    /// This Monobehavior should be used to run coroutines that shouldn't stop if the original monobehavior is disabled/destroyed.
     /// </summary>
     public class CoroutineRunner : MonoBehaviour
     {
-        // Create a singleton reference that instantiate itself whenever it's referenced for the first time in a scene
+        // Create a singleton reference that instantiate itself whenever it's referenced for the first time in a scene.
         private static CoroutineRunner Instance
         {
             get
@@ -34,15 +34,16 @@ namespace Utils
         private bool hasStarted = false;
 
         /// <summary>
-        /// Start Coroutine attached to the CoroutineRunner
+        /// Start Coroutine attached to the CoroutineRunner Gameobject.
         /// </summary>
+        /// <param name="routine">The routine to be started attached to the CoroutineRunner Gameobject.</param>
         public static Coroutine RunCoroutine(IEnumerator routine)
         {
             return Instance.StartCoroutine(routine);
         }
 
         /// <summary>
-        /// Stop All Coroutines attached to the CoroutineRunner
+        /// Stop All Coroutines attached to the CoroutineRunner.
         /// </summary>
         public static void StopAllMyCoroutines()
         {
@@ -76,6 +77,5 @@ namespace Utils
             if(m_instance == this)
                 m_instance = null;
         }
-
     }
 }

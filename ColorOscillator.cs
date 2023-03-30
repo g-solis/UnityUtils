@@ -6,22 +6,22 @@ using UnityEngine.UI;
 namespace Utils
 {   
     /// <summary>
-    /// This component oscillates the color of an attached graphic component between it's initial color and the color stored in the TargetColor variable
+    /// This component oscillates the color of an attached graphic component between it's initial color and the color stored in the TargetColor variable.
     /// </summary>
     public class ColorOscillator : MonoBehaviour
     {   
         /// <summary>
-        /// Enables or Disables the Oscillating effect of this Component
+        /// Enables or Disables the Oscillating effect of this Component.
         /// </summary>
         public bool ShouldOscillate = true;
 
         /// <summary>
-        /// The TargetColor that this Component should oscillate to
+        /// The TargetColor that this Component should oscillate to.
         /// </summary>
         public Color TargetColor = Color.white;
 
         /// <summary>
-        /// Interval of oscillation
+        /// Interval of oscillation.
         /// </summary>
         public float Interval = 1;
 
@@ -30,7 +30,7 @@ namespace Utils
         private Color startColor;
 
         /// <summary>
-        /// Return the current color of the attached graphic to it's initial color
+        /// Return the current color of the attached graphic to it's initial color.
         /// </summary>
         public void ResetColor()
         {
@@ -38,8 +38,9 @@ namespace Utils
         }
 
         /// <summary>
-        /// Sets a new initial color
+        /// Sets a new initial color.
         /// </summary>
+        /// <param name="startColor">The color value to be set as the initial color.</param>
         public void SetStartColor(Color startColor)
         {
             this.startColor = startColor;
@@ -61,8 +62,7 @@ namespace Utils
             {
                 started = true;
                 m_target = new GraphicOrRenderer(GetComponent<Graphic>(),
-                                                 GetComponent<SpriteRenderer>(),
-                                                 GetComponent<MeshRenderer>());
+                                                 GetComponent<Renderer>());
 
                 if(m_target.HasAnyReference())
                 {
@@ -116,37 +116,36 @@ namespace Utils
         }
 
         /// <summary>
-        /// Store a Graphic, Sprite Renderer and Mesh Renderer and provide methods to access and modify their color values
+        /// Store a Graphic, Sprite Renderer and Mesh Renderer and provide methods to access and modify their color values.
         /// </summary>
         private class GraphicOrRenderer
         {
             /// <summary>
-            /// Set color of all stored references of graphic, sprite renderer and mesh renderer
+            /// Set color of all stored references of graphic or renderer.
             /// </summary>
             public Action<Color> SetColor = null;
 
             /// <summary>
             /// Returns one of the colors of the stored references in the following priority order:
-            /// <para>Mesh Renderer</para>
-            /// <para>Sprite Renderer</para>
+            /// <para>Renderer</para>
             /// <para>Graphic</para>
             /// </summary>
             public Func<Color> GetColor = null;
 
             private Graphic m_graphic = null;
-            private SpriteRenderer m_sprRenderer = null;
-            private MeshRenderer m_meshRenderer = null;
+            private Renderer m_rend = null;
 
             /// <summary>
             /// Initializes a GraphicOrRenderer object, storing the passed references and defining the SetColor and GetColor calls
             /// </summary>
-            public GraphicOrRenderer(Graphic g, SpriteRenderer spr, MeshRenderer mesh)
+            /// <param name="graphic">The Graphic component reference to be stored and used by the GraphicOrRenderer Object.</param>
+            /// <param name="renderer">The Renderer component reference to be stored and used by the GraphicOrRenderer Object.</param>
+            public GraphicOrRenderer(Graphic graphic, Renderer renderer)
             {
                 SetColor = null;
 
-                m_graphic = g;
-                m_sprRenderer = spr;
-                m_meshRenderer = mesh;
+                m_graphic = graphic;
+                m_rend = renderer;
 
                 if(m_graphic)
                 {
@@ -154,27 +153,20 @@ namespace Utils
                     GetColor = () => m_graphic.color;
                 }
                 
-                if(m_sprRenderer)
+                if(m_rend)
                 {
-                    SetColor += (c) => m_sprRenderer.color = c;
-                    GetColor = () => m_sprRenderer.color;
-                }
-                
-                if(m_meshRenderer)
-                {
-                    SetColor += (c) => m_meshRenderer.material.color = c;
-                    GetColor = () => m_meshRenderer.material.color;
-                }             
+                    SetColor += (c) => m_rend.material.color = c;
+                    GetColor = () => m_rend.material.color;
+                }        
             }
 
             /// <summary>
-            /// Returns true if a Graphic, a Sprite Renderer or a Mesh Renderer is stored, otherwise false.
+            /// Returns true if a Graphic or a Renderer is stored, otherwise false.
             /// </summary>
             public bool HasAnyReference()
             {
-                return m_graphic != null || m_sprRenderer != null || m_meshRenderer != null;
+                return m_graphic != null || m_rend != null;
             }
         }
     }
-
 }
