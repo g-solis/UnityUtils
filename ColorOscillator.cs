@@ -25,8 +25,8 @@ namespace Utils
         /// </summary>
         public float Interval = 1;
 
-        bool started = false;
-        GraphicOrRenderer m_target = null;
+        private bool started = false;
+        private GraphicOrRenderer m_target = null;
         private Color startColor;
 
         /// <summary>
