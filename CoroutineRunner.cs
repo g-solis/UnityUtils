@@ -43,6 +43,15 @@ namespace Utils
         }
 
         /// <summary>
+        /// Stop a given Coroutine attached to the CoroutineRunner, always use this method to StopCoroutines that were started by the CoroutineRunner
+        /// </summary>
+        /// <param name="coroutine">The coroutine to be stopped.</param>
+        public static void StopMyCoroutine(Coroutine coroutine)
+        {
+            Instance.StopCoroutine(coroutine);
+        }
+
+        /// <summary>
         /// Stop All Coroutines attached to the CoroutineRunner.
         /// </summary>
         public static void StopAllMyCoroutines()

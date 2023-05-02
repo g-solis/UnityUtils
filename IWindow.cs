@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
 namespace Utils
 {
@@ -29,14 +28,6 @@ namespace Utils
             SlideRight
         }
 
-        public enum AnimationEasings
-        {
-            Linear = Ease.Linear,
-            Smooth = Ease.InOutSine,
-            OverSmooth = Ease.InOutCubic,
-            Elastic = Ease.OutBack
-        }
-
         public enum ModalInteraction
         {
             Nothing,
@@ -49,7 +40,7 @@ namespace Utils
         [SerializeField] protected AnimationType openAnimation;
 
         [Tooltip("The animation easing that the opening animation should use.")]
-        [SerializeField] protected AnimationEasings openCurve;
+        [SerializeField] protected Tweener.TweenType openCurve;
 
         [Tooltip("The duration of the opening animation.")]
         [SerializeField] protected float openDuration = 1;
@@ -58,7 +49,7 @@ namespace Utils
         [SerializeField] protected AnimationType closeAnimation;
         
         [Tooltip("The animation easing that the closing animation should use.")]
-        [SerializeField] protected AnimationEasings closeCurve;
+        [SerializeField] protected Tweener.TweenType closeCurve;
 
         [Tooltip("The duration of the closing animation.")]
         [SerializeField] protected float closeDuration = 1;
@@ -94,6 +85,10 @@ namespace Utils
         private CanvasGroup canvasGroup;
 
         private Coroutine currentCoroutine = null;
+        private Coroutine windowTweenCoroutine = null;
+        private Coroutine modalTweenCoroutine = null;
+        private Coroutine canvasTweenCoroutine = null;
+
         private bool initted = false;
 
 #region VirtualMethods
@@ -132,12 +127,12 @@ namespace Utils
             {
                 StopCoroutine(currentCoroutine);
                 
-                windowRect.DOKill();
+                Tweener.StopTweening(windowTweenCoroutine);
 
                 if(shouldUseModal)
-                    modal.DOKill();
+                    Tweener.StopTweening(modalTweenCoroutine);
 
-                canvasGroup.DOKill();
+                Tweener.StopTweening(canvasTweenCoroutine);
             }
             
             currentCoroutine = StartCoroutine(OpenCoroutine());
@@ -152,12 +147,12 @@ namespace Utils
             {
                 StopCoroutine(currentCoroutine);
                 
-                windowRect.DOKill();
+                Tweener.StopTweening(windowTweenCoroutine);
 
                 if(shouldUseModal)
-                    modal.DOKill();
+                    Tweener.StopTweening(modalTweenCoroutine);
 
-                canvasGroup.DOKill();
+                Tweener.StopTweening(canvasTweenCoroutine);
             }
             
             currentCoroutine = StartCoroutine(CloseCoroutine());
@@ -210,51 +205,43 @@ namespace Utils
                 case AnimationType.Scale:
                     windowRect.localScale = Vector3.zero;
                     yield return null;
-                    windowRect.DOScale(startScale, openDuration).SetEase((Ease) openCurve).SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenScale(startScale, openDuration, openCurve, true);
                     break;
 
                 case AnimationType.Fade:
                     canvasGroup.alpha = 0;
                     yield return null;
-                    canvasGroup.DOFade(startAlpha, openDuration).SetEase((Ease) openCurve).SetUpdate(true);
+                    canvasTweenCoroutine = canvasGroup.TweenAlpha(startAlpha, openDuration, openCurve, true);
                     break;
 
                 case AnimationType.SlideUp:
                     windowRect.localPosition = outSidePositions[0];
                     yield return null;
-                    windowRect.DOLocalMove(startPos, openDuration)
-                              .SetEase((Ease) openCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
                     break;
 
                 case AnimationType.SlideDown:
                     windowRect.localPosition = outSidePositions[1];
                     yield return null;
-                    windowRect.DOLocalMove(startPos, openDuration)
-                              .SetEase((Ease) openCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
                     break;
 
                 case AnimationType.SlideLeft:
                     windowRect.localPosition = outSidePositions[2];
                     yield return null;
-                    windowRect.DOLocalMove(startPos, openDuration)
-                              .SetEase((Ease) openCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
                     break;
 
                 case AnimationType.SlideRight:
                     windowRect.localPosition = outSidePositions[3];
                     yield return null;
-                    windowRect.DOLocalMove(startPos, openDuration)
-                              .SetEase((Ease) openCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
                     break;
             }
 
             // Start modal fade animation
             if(shouldUseModal)
-                modal.DOFade(modalStartAlpha, openDuration).SetUpdate(true);
+                modalTweenCoroutine = modal.TweenAlpha(modalStartAlpha, openDuration, Tweener.TweenType.Linear, true);
 
             // Disable buttons that should be disabled while the animation is playing
             SetButtonsAnim(false);
@@ -265,6 +252,9 @@ namespace Utils
             SetButtonsAnim(true);
 
             currentCoroutine = null;
+            windowTweenCoroutine = null;
+            modalTweenCoroutine = null;
+            canvasTweenCoroutine = null;
             AfterOpen();
         }
 
@@ -288,41 +278,33 @@ namespace Utils
             switch(closeAnimation)
             {
                 case AnimationType.Scale:
-                    windowRect.DOScale(Vector3.zero, closeDuration).SetEase((Ease) closeCurve).SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenScale(Vector3.zero, closeDuration, closeCurve, true);
                     break;
 
                 case AnimationType.Fade:
-                    canvasGroup.DOFade(0, closeDuration).SetEase((Ease) closeCurve).SetUpdate(true);
+                    canvasTweenCoroutine = canvasGroup.TweenAlpha(0, closeDuration, closeCurve, true);
                     break;
 
                 case AnimationType.SlideUp:
-                    windowRect.DOLocalMove(outSidePositions[0], closeDuration)
-                              .SetEase((Ease) closeCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[0], closeDuration, closeCurve, true);
                     break;
 
                 case AnimationType.SlideDown:
-                    windowRect.DOLocalMove(outSidePositions[1], closeDuration)
-                              .SetEase((Ease) closeCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[1], closeDuration, closeCurve, true);
                     break;
 
                 case AnimationType.SlideLeft:
-                    windowRect.DOLocalMove(outSidePositions[2], closeDuration)
-                              .SetEase((Ease) closeCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[2], closeDuration, closeCurve, true);
                     break;
 
                 case AnimationType.SlideRight:
-                    windowRect.DOLocalMove(outSidePositions[3], closeDuration)
-                              .SetEase((Ease) closeCurve)
-                              .SetUpdate(true);
+                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[3], closeDuration, closeCurve, true);
                     break;
             }
 
             // Start modal fade animation
             if(shouldUseModal)
-                modal.DOFade(0, closeDuration).SetUpdate(true);
+                modalTweenCoroutine = modal.TweenAlpha(0, closeDuration, Tweener.TweenType.Linear, true);
 
             // Disable buttons that should be disabled while the animation is playing
             SetButtonsAnim(false);
@@ -333,6 +315,9 @@ namespace Utils
             SetButtonsAnim(true);
 
             currentCoroutine = null;
+            windowTweenCoroutine = null;
+            modalTweenCoroutine = null;
+            canvasTweenCoroutine = null;
             // Enable buttons that should be disable while the window is open
             SetButtonsWhileOpen(true);
             AfterClose();
