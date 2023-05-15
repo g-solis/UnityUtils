@@ -124,6 +124,29 @@ namespace Utils
             return subset;
         }
 
+        /// <summary>
+        /// Returns a clone of this Enumerable
+        /// </summary>
+        public static IEnumerable<T> Clone<T>(this IEnumerable<T> enumerable)
+        {
+            IEnumerable<T> clonedEnumerable = Enumerable.Empty<T>();
+
+            foreach(T item in enumerable)
+            {
+                clonedEnumerable.Append(item);
+            }
+
+            return clonedEnumerable;
+        }
+
+        /// <summary>
+        /// Returns a reversed clone of this Enumerable
+        /// </summary>
+        public static IEnumerable<T> GetReversed<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Clone().Reverse();
+        }
+
 #endregion
 
 #region InsertElements
