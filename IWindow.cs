@@ -85,9 +85,9 @@ namespace Utils
         private CanvasGroup canvasGroup;
 
         private Coroutine currentCoroutine = null;
-        private Coroutine windowTweenCoroutine = null;
-        private Coroutine modalTweenCoroutine = null;
-        private Coroutine canvasTweenCoroutine = null;
+        private Tween windowTween = null;
+        private Tween modalTween = null;
+        private Tween canvasTween = null;
 
         private bool initted = false;
 
@@ -127,12 +127,14 @@ namespace Utils
             {
                 StopCoroutine(currentCoroutine);
                 
-                Tweener.StopTweening(windowTweenCoroutine);
+                if(windowTween)
+                    windowTween.Kill();
 
-                if(shouldUseModal)
-                    Tweener.StopTweening(modalTweenCoroutine);
+                if(shouldUseModal && modalTween)
+                        modalTween.Kill();
 
-                Tweener.StopTweening(canvasTweenCoroutine);
+                if(canvasTween)
+                    canvasTween.Kill();
             }
             
             currentCoroutine = StartCoroutine(OpenCoroutine());
@@ -147,12 +149,14 @@ namespace Utils
             {
                 StopCoroutine(currentCoroutine);
                 
-                Tweener.StopTweening(windowTweenCoroutine);
+                if(windowTween)
+                    windowTween.Kill();
 
-                if(shouldUseModal)
-                    Tweener.StopTweening(modalTweenCoroutine);
+                if(shouldUseModal && modalTween)
+                        modalTween.Kill();
 
-                Tweener.StopTweening(canvasTweenCoroutine);
+                if(canvasTween)
+                    canvasTween.Kill();
             }
             
             currentCoroutine = StartCoroutine(CloseCoroutine());
@@ -205,43 +209,66 @@ namespace Utils
                 case AnimationType.Scale:
                     windowRect.localScale = Vector3.zero;
                     yield return null;
-                    windowTweenCoroutine = windowRect.TweenScale(startScale, openDuration, openCurve, true);
+                    windowTween = windowRect.TweenScale(startScale, openDuration)
+                        .SetTweenType(openCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.Fade:
                     canvasGroup.alpha = 0;
                     yield return null;
-                    canvasTweenCoroutine = canvasGroup.TweenAlpha(startAlpha, openDuration, openCurve, true);
+                    canvasTween = canvasGroup.TweenAlpha(startAlpha, openDuration)
+                        .SetTweenType(openCurve)
+                        .UseUnscaledTime(true);
+                    canvasTween.onComplete += () => canvasTween = null;
                     break;
 
                 case AnimationType.SlideUp:
                     windowRect.localPosition = outSidePositions[0];
                     yield return null;
-                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
+                    windowTween = windowRect.TweenLocalPos(startPos, openDuration)
+                        .SetTweenType(openCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.SlideDown:
                     windowRect.localPosition = outSidePositions[1];
                     yield return null;
-                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
+                    windowTween = windowRect.TweenLocalPos(startPos, openDuration)
+                        .SetTweenType(openCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.SlideLeft:
                     windowRect.localPosition = outSidePositions[2];
                     yield return null;
-                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
+                    windowTween = windowRect.TweenLocalPos(startPos, openDuration)
+                        .SetTweenType(openCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.SlideRight:
                     windowRect.localPosition = outSidePositions[3];
                     yield return null;
-                    windowTweenCoroutine = windowRect.TweenLocalPos(startPos, openDuration, openCurve, true);
+                    windowTween = windowRect.TweenLocalPos(startPos, openDuration)
+                        .SetTweenType(openCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
             }
 
             // Start modal fade animation
             if(shouldUseModal)
-                modalTweenCoroutine = modal.TweenAlpha(modalStartAlpha, openDuration, Tweener.TweenType.Linear, true);
+            {
+                modalTween = modal.TweenAlpha(modalStartAlpha, openDuration)
+                    .UseUnscaledTime(true);
+                modalTween.onComplete += () => modalTween = null;
+            }
+
 
             // Disable buttons that should be disabled while the animation is playing
             SetButtonsAnim(false);
@@ -252,9 +279,9 @@ namespace Utils
             SetButtonsAnim(true);
 
             currentCoroutine = null;
-            windowTweenCoroutine = null;
-            modalTweenCoroutine = null;
-            canvasTweenCoroutine = null;
+            windowTween = null;
+            modalTween = null;
+            canvasTween = null;
             AfterOpen();
         }
 
@@ -278,33 +305,55 @@ namespace Utils
             switch(closeAnimation)
             {
                 case AnimationType.Scale:
-                    windowTweenCoroutine = windowRect.TweenScale(Vector3.zero, closeDuration, closeCurve, true);
+                    windowTween = windowRect.TweenScale(Vector3.zero, closeDuration)
+                        .SetTweenType(closeCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.Fade:
-                    canvasTweenCoroutine = canvasGroup.TweenAlpha(0, closeDuration, closeCurve, true);
+                    canvasTween = canvasGroup.TweenAlpha(0, closeDuration)
+                        .SetTweenType(closeCurve)
+                        .UseUnscaledTime(true);
+                    canvasTween.onComplete += () => canvasTween = null;
                     break;
 
                 case AnimationType.SlideUp:
-                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[0], closeDuration, closeCurve, true);
+                    windowTween = windowRect.TweenLocalPos(outSidePositions[0], closeDuration)
+                        .SetTweenType(closeCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.SlideDown:
-                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[1], closeDuration, closeCurve, true);
+                    windowTween = windowRect.TweenLocalPos(outSidePositions[1], closeDuration)
+                        .SetTweenType(closeCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.SlideLeft:
-                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[2], closeDuration, closeCurve, true);
+                    windowTween = windowRect.TweenLocalPos(outSidePositions[2], closeDuration)
+                        .SetTweenType(closeCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
 
                 case AnimationType.SlideRight:
-                    windowTweenCoroutine = windowRect.TweenLocalPos(outSidePositions[3], closeDuration, closeCurve, true);
+                    windowTween = windowRect.TweenLocalPos(outSidePositions[3], closeDuration)
+                        .SetTweenType(closeCurve)
+                        .UseUnscaledTime(true);
+                    windowTween.onComplete += () => windowTween = null;
                     break;
             }
 
             // Start modal fade animation
             if(shouldUseModal)
-                modalTweenCoroutine = modal.TweenAlpha(0, closeDuration, Tweener.TweenType.Linear, true);
+            {
+                modalTween = modal.TweenAlpha(0, closeDuration)
+                    .UseUnscaledTime(true);
+                modalTween.onComplete += () => modalTween = null;
+            }
 
             // Disable buttons that should be disabled while the animation is playing
             SetButtonsAnim(false);
@@ -315,9 +364,9 @@ namespace Utils
             SetButtonsAnim(true);
 
             currentCoroutine = null;
-            windowTweenCoroutine = null;
-            modalTweenCoroutine = null;
-            canvasTweenCoroutine = null;
+            windowTween = null;
+            modalTween = null;
+            canvasTween = null;
             // Enable buttons that should be disable while the window is open
             SetButtonsWhileOpen(true);
             AfterClose();
@@ -366,11 +415,15 @@ namespace Utils
                     modalRect.SetAsFirstSibling();
 
                     // set the modal to stretch anchoring and stretch it to fit this object
-                    modalRect.anchorMin = new Vector2(0, 0);
-                    modalRect.anchorMax = new Vector2(1, 1);
+                    modalRect.anchorMin = Vector2.zero;
+                    modalRect.anchorMax = Vector2.one;
                     modalRect.pivot = new Vector2(0.5f, 0.5f);
-                    modalRect.SetWidth(m_rectTransform.sizeDelta.x);
-                    modalRect.SetHeight(m_rectTransform.sizeDelta.y);
+                    modalRect.anchoredPosition = Vector2.zero;
+
+                    CoroutineRunner.CallAfterDelay(() => {
+                        modalRect.SetWidth(m_rectTransform.rect.width);
+                        modalRect.SetHeight(m_rectTransform.rect.height);
+                    }, 0.1f, true);
 
                     // make the modal ignore the parent canvas group
                     modal.gameObject.AddComponent<CanvasGroup>().ignoreParentGroups = true;

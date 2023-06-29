@@ -252,8 +252,8 @@ namespace Utils
                     Tweener.TweenValue(() => source.volume,
                                        (x) => source.volume = x,
                                        0,
-                                       halfTransitionDuration,
-                                       Tweener.TweenType.Smooth);
+                                       halfTransitionDuration)
+                                       .SetTweenType(Tweener.TweenType.Smooth);
 
                     yield return new WaitForSeconds(halfTransitionDuration);
                 }
@@ -271,8 +271,8 @@ namespace Utils
                 Tweener.TweenValue(() => source.volume,
                                    (x) => source.volume = x,
                                    GetOSTVolume(Instance.activeOST.Volume),
-                                   halfTransitionDuration,
-                                   Tweener.TweenType.Smooth);
+                                   halfTransitionDuration)
+                                   .SetTweenType(Tweener.TweenType.Smooth);
 
                 yield return new WaitForSeconds(halfTransitionDuration);
 
