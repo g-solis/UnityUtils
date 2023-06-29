@@ -6,32 +6,38 @@ namespace Utils
     /// <summary>
     /// This Monobehavior should be used to run coroutines that shouldn't stop if the original monobehavior is disabled/destroyed.
     /// </summary>
-    public class CoroutineRunner : MonoBehaviour
+    public class CoroutineRunner : SingletonMonoBehavior<CoroutineRunner>
     {
-        // Create a singleton reference that instantiate itself whenever it's referenced for the first time in a scene.
-        private static CoroutineRunner Instance
+        /// <summary>
+        /// Calls a action after a given delay
+        /// </summary>
+        /// <param name="callback">The action to be called.</param>
+        /// <param name="delay">The delay to be waited before callin the action, in seconds.</param>
+        /// <param name="useUnscaledTime">Should the delay use unscaled time?</param>
+        public static void CallAfterDelay(System.Action callback, float delay, bool useUnscaledTime = false)
         {
-            get
+            if(callback == null)
+                return;
+
+            if(delay <= 0)
             {
-                if(m_instance == null)
-                {
-                    m_instance = FindObjectOfType<CoroutineRunner>();
-
-                    if(m_instance == null)
-                    {
-                        m_instance = (new GameObject("Coroutine Runner")).AddComponent<CoroutineRunner>();
-                    }
-
-                    m_instance.Start();
-                }
-
-                return m_instance;
+                callback();
+                return;
             }
+
+            IEnumerator DelayedCoroutine()
+            {
+                if(useUnscaledTime)
+                    yield return new WaitForSecondsRealtime(delay);
+                else
+                    yield return new WaitForSeconds(delay);
+
+                callback?.Invoke();
+            }
+
+            RunCoroutine(DelayedCoroutine());
+
         }
-
-        private static CoroutineRunner m_instance = null;
-
-        private bool hasStarted = false;
 
         /// <summary>
         /// Start Coroutine attached to the CoroutineRunner Gameobject.
@@ -59,32 +65,9 @@ namespace Utils
             Instance.StopAllCoroutines();
         }
 
-        private void Start()
-        {
-            if(!hasStarted)
-            {
-                hasStarted = true;
-
-                if(m_instance == null)
-                {
-                    m_instance = this;
-                }
-                else
-                {
-                    if(m_instance != this)
-                    {
-                        Destroy(gameObject);
-                    }
-                }
-            }
-        }
-
-        private void OnDestroy()
+        protected override void AdditionalOnDestroy()
         {
             StopAllCoroutines();
-
-            if(m_instance == this)
-                m_instance = null;
         }
     }
 }
