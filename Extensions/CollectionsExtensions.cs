@@ -72,6 +72,46 @@ namespace Utils
         }
 
         /// <summary>
+        /// Returns a random element following the weights given by the getWeight function.
+        /// </summary>
+        /// <param name="getWeight">The function that provides the weight of a element.</param>
+        public static T RandomWithWeights<T>(this IEnumerable<T> enumerable, System.Func<T, int> getWeight)
+        {
+            // check if the Enumerable is null, if so return the default value for type T
+            if (enumerable == null)
+            {
+                return default(T);
+            }
+
+            int count = enumerable.Count();
+
+            // check if the Enumerable is empty, if so return the default value for type T
+            if (count == 0)
+            {
+                return default(T);
+            }
+
+            // check if the predicate is null, if so return a random element from the enumerable
+            if (getWeight == null)
+            {
+                return Random(enumerable);
+            }
+
+            // initialize pool
+            List<int> pool = new List<int>();
+
+            // add the each item's index X times to the pool,
+            // where X is the weight given by the getWeight function
+            foreach(var (item, i) in enumerable.WithIndex())
+            {
+                pool.AddElementMultipleTimes(i, getWeight(item));
+            }
+
+            // return the random element
+            return enumerable.ElementAt(pool.Random());
+        }
+
+        /// <summary>
         /// Returns a subset of elements that satisfies the specified predicate condition.
         /// </summary>
         /// <param name="predicate">The predicate that provides the criteria for the subset selection.</param>
@@ -146,6 +186,19 @@ namespace Utils
         {
             return enumerable.Clone().Reverse();
         }
+        
+        /// <summary>
+        /// Returns a Indexed version of this Enumerable to be used in a foreach with index access
+        /// <para>For example:</para>
+        /// <para>foreach (var (item, i) in enumerable.WithIndex())</para>
+        /// <para>{</para>
+        /// <para>     {...}</para>
+        /// <para>}</para>
+        /// </summary>
+        public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> self)
+        {
+            return self.Select((item, index) => (item, index));
+        }  
 
 #endregion
 
@@ -214,6 +267,33 @@ namespace Utils
             }
         }
 
+#endregion
+
+#region Debug
+        /// <summary>
+        /// Logs each element of a Enumerable
+        /// </summary>
+        /// <param name="enumerableName">The name of the Enumerable.</param>
+        public static void DebugLogContents<T>(this IEnumerable<T> enumerable, string enumerableName = "")
+        {
+            System.Text.StringBuilder strBuilder = new System.Text.StringBuilder(1000);
+
+            if(enumerableName != string.Empty)
+            {
+                strBuilder.Append($"Logging {enumerableName}: \n");
+            }
+            else
+            {
+                strBuilder.Append("Logging Enumerable: \n");
+            }
+
+            foreach(var item in enumerable)
+            {
+                strBuilder.Append($"{item.ToString()}\n");
+            }
+
+            Debug.Log(strBuilder.ToString());
+        }
 #endregion
 
     }
