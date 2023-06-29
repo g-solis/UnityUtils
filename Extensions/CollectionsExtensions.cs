@@ -229,19 +229,15 @@ namespace Utils
         /// Adds the specified range of elements to the collection.
         /// </summary>
         /// <param name="range">The elements to add to the collection.</param>
-        public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> range)
+        public static void AddRange<T>(this IEnumerable<T> enumerable, IEnumerable<T> range)
         {
-            // check if the collection is null or if the range is null, if so return
-            if(collection == null || range == null)
+            // check if the enumerable is null or if the range is null, if so return
+            if(enumerable == null || range == null)
             {
                 return;
             }
 
-            // add the range to the collection
-            foreach(T element in range)
-            {
-                collection.Add(element);
-            }
+            enumerable.Concat(range);
         }
 
         /// <summary>
