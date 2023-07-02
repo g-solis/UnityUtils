@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Utils
+namespace Utils.Extension
 {
     public static class UIExtensions
     {

@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils.Core;
+using Utils.Extension;
 
-namespace Utils
+namespace Utils.Animation
 {
     public class Tweener
     {

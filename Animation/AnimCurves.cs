@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Utils
+namespace Utils.Animation
 {
     public class AnimCurves
     {

@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils.Animation;
+using Utils.Extension;
 
-namespace Utils
+namespace Utils.Core
 {
     public class SoundManager : MonoBehaviour
     {

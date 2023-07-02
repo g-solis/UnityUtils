@@ -2,8 +2,9 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils.Core;
 
-namespace Utils
+namespace Utils.Animation
 {   
     /// <summary>
     /// This component oscillates the color of an attached graphic component between it's initial color and the color stored in the TargetColor variable.

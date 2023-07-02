@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Utils
+namespace Utils.Core
 {
     /// <summary>
     /// This Monobehavior should be used to run coroutines that shouldn't stop if the original monobehavior is disabled/destroyed.

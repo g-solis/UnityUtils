@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils.Animation;
+using Utils.Extension;
 
-namespace Utils
+namespace Utils.UI
 {
     /// <summary>
     /// This is a functional Window implementation that can be inherited to override some of it's defined behavior. It requires DoTween to function.
@@ -420,7 +422,7 @@ namespace Utils
                     modalRect.pivot = new Vector2(0.5f, 0.5f);
                     modalRect.anchoredPosition = Vector2.zero;
 
-                    CoroutineRunner.CallAfterDelay(() => {
+                    Utils.Core.CoroutineRunner.CallAfterDelay(() => {
                         modalRect.SetWidth(m_rectTransform.rect.width);
                         modalRect.SetHeight(m_rectTransform.rect.height);
                     }, 0.1f, true);

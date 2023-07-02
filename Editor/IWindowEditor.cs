@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Utils
+namespace Utils.UI
 {
     [CustomEditor(typeof(IWindow))]
     public class ObjectBuilderEditor : Editor
